@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B'aix - POI Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #334155;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+        }
+        
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(90deg, #e2e8f0 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 16px;
+            background-color: #1e293b;
+            border-radius: 20px;
+            border: 1px solid #334155;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #ef4444;
+        }
+        
+        .status-dot.connected {
+            background-color: #10b981;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .console-container {
+            background-color: #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #334155;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .console-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #334155;
+        }
+        
+        h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+        
+        .console {
+            background-color: #0f172a;
+            border-radius: 8px;
+            padding: 15px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+            color: #94a3b8;
+            border: 1px solid #334155;
+        }
+        
+        .console-input {
+            display: flex;
+            margin-top: 15px;
+            gap: 10px;
+        }
+        
+        .console-input span {
+            color: #10b981;
+            font-weight: 500;
+        }
+        
+        .console-input input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #e2e8f0;
+            font-family: monospace;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        .poi-container {
+            background-color: #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #334155;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .poi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .add-poi-btn {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .poi-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            overflow-y: auto;
+            max-height: 600px;
+            padding: 5px;
+        }
+        
+        .poi-card {
+            background-color: #0f172a;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #334155;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        
+        .poi-card:hover {
+            transform: translateY(-5px);
+            border-color: #6366f1;
+        }
+        
+        .poi-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .poi-details {
+            font-size: 14px;
+            color: #94a3b8;
+        }
+        
+        .poi-details p {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .poi-details i {
+            width: 16px;
+            color: #6366f1;
+        }
+        
+        .help-section {
+            background-color: #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+            border: 1px solid #334155;
+        }
+        
+        .help-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 15px;
+        }
+        
+        .help-content {
+            font-size: 14px;
+            color: #94a3b8;
+        }
+        
+        .help-content code {
+            background-color: #0f172a;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #e2e8f0;
+        }
+        
+        .command-list {
+            margin-top: 15px;
+            padding-left: 20px;
+        }
+        
+        .command-list li {
+            margin-bottom: 8px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #334155;
+            font-size: 12px;
+            color: #64748b;
+        }
+        
+        .blink {
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: #1e293b;
+            border-radius: 12px;
+            padding: 30px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid #334155;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .close {
+            color: #94a3b8;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #e2e8f0;
+        }
+        
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: #e2e8f0;
+            font-size: 14px;
+        }
+        
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: #64748b;
+            color: white;
+        }
+        
+        .optional {
+            color: #94a3b8;
+            font-style: italic;
+        }
+        
+        .risk-indicator {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .risk-high {
+            background-color: #ef4444;
+            color: white;
+        }
+        
+        .risk-medium {
+            background-color: #f59e0b;
+            color: white;
+        }
+        
+        .risk-low {
+            background-color: #10b981;
+            color: white;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .action-btn:hover {
+            color: #6366f1;
+        }
+        
+        .search-box {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 10px 12px;
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: #e2e8f0;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #334155;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">B</div>
+                <h1>B'aix - POI Dashboard</h1>
+            </div>
+            <div class="status">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Not Connected</span>
+            </div>
+        </header>
+        
+        <div class="dashboard">
+            <div class="console-container">
+                <div class="console-header">
+                    <h2>System Console</h2>
+                    <div class="actions">
+                        <button onclick="clearConsole()">Clear</button>
+                    </div>
+                </div>
+                <div class="console" id="consoleOutput">
+                    <div>> B'aix Console initialized. Waiting for authentication...</div>
+                    <div>> Type 'baix.logon(key)' to authenticate</div>
+                </div>
+                <div class="console-input">
+                    <span>></span>
+                    <input type="text" id="consoleInput" placeholder="Type command here..." autocomplete="off" />
+                </div>
+            </div>
+            
+            <div class="poi-container">
+                <div class="poi-header">
+                    <h2>Persons of Interest</h2>
+                    <button class="add-poi-btn" id="addPoiBtn" disabled>
+                        <i class="fas fa-plus"></i> Add POI
+                    </button>
+                </div>
+                
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search POIs..." disabled>
+                    <button class="btn btn-secondary" id="searchBtn" disabled>
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                
+                <div class="poi-list" id="poiList">
+                    <div class="empty-state">
+                        <i class="fas fa-user-lock"></i>
+                        <h3>Authentication Required</h3>
+                        <p>Please authenticate to view POIs</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="help-section">
+            <div class="help-title">Available Commands</div>
+            <div class="help-content">
+                <p>After authentication, you can use the following commands:</p>
+                <ul class="command-list">
+                    <li><code>baix.logon(key)</code> - Authenticate with the system</li>
+                    <li><code>baix.help()</code> - Show this help message</li>
+                </ul>
+                <p>After authentication, you can use the GUI to manage POIs.</p>
+            </div>
+        </div>
+        
+        <footer>
+            <p>B'aix System • Classified Information • Authorized Use Only</p>
+        </footer>
+    </div>
+
+    <!-- Add POI Modal -->
+    <div class="modal" id="addPoiModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Person of Interest</h2>
+                <span class="close" id="closeModal">&times;</span>
+            </div>
+            <form id="poiForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="firstName">First Name <span class="required">*</span></label>
+                        <input type="text" id="firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="middleName">Middle Name <span class="optional">(optional)</span></label>
+                        <input type="text" id="middleName">
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name <span class="required">*</span></label>
+                        <input type="text" id="lastName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dob">Date of Birth <span class="required">*</span></label>
+                        <input type="date" id="dob" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="address1">Address Line 1 <span class="required">*</span></label>
+                        <input type="text" id="address1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="address2">Address Line 2 <span class="optional">(optional)</span></label>
+                        <input type="text" id="address2">
+                    </div>
+                    <div class="form-group">
+                        <label for="city">City <span class="required">*</span></label>
+                        <input type="text" id="city" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="state">State/Province <span class="required">*</span></label>
+                        <input type="text" id="state" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="zipCode">ZIP/Postal Code <span class="required">*</span></label>
+                        <input type="text" id="zipCode" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="country">Country <span class="required">*</span></label>
+                        <input type="text" id="country" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number <span class="required">*</span></label>
+                        <input type="tel" id="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address <span class="required">*</span></label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="website">Website <span class="optional">(optional)</span></label>
+                        <input type="url" id="website">
+                    </div>
+                    <div class="form-group">
+                        <label for="riskLevel">Risk Level <span class="required">*</span></label>
+                        <select id="riskLevel" required>
+                            <option value="">Select Risk Level</option>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="notes">Additional Notes</label>
+                        <textarea id="notes" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add POI</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const consoleInput = document.getElementById('consoleInput');
+        const consoleOutput = document.getElementById('consoleOutput');
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const poiList = document.getElementById('poiList');
+        const addPoiBtn = document.getElementById('addPoiBtn');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const addPoiModal = document.getElementById('addPoiModal');
+        const closeModal = document.getElementById('closeModal');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const poiForm = document.getElementById('poiForm');
+        
+        // State
+        let isAuthenticated = false;
+        let sessionKey = null;
+        let poiData = [];
+        
+        // Initialize the console
+        function initConsole() {
+            consoleInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    processCommand(consoleInput.value);
+                    consoleInput.value = '';
+                }
+            });
+            
+            // Make the console input focused on page load
+            consoleInput.focus();
+            
+            // Modal event listeners
+            addPoiBtn.addEventListener('click', () => {
+                addPoiModal.style.display = 'flex';
+            });
+            
+            closeModal.addEventListener('click', () => {
+                addPoiModal.style.display = 'none';
+            });
+            
+            cancelBtn.addEventListener('click', () => {
+                addPoiModal.style.display = 'none';
+            });
+            
+            // Form submission
+            poiForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                addPOIFromForm();
+            });
+            
+            // Search functionality
+            searchBtn.addEventListener('click', searchPOIs);
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    searchPOIs();
+                }
+            });
+        }
+        
+        // Process commands
+        function processCommand(command) {
+            // Add the command to console output
+            addToConsole(`> ${command}`);
+            
+            // Simple command parsing
+            const parts = command.split('.');
+            const namespace = parts[0];
+            const methodWithArgs = parts[1];
+            
+            if (namespace !== 'baix') {
+                addToConsole('Error: Unknown namespace. Use "baix" commands only.');
+                return;
+            }
+            
+            if (!methodWithArgs) {
+                addToConsole('Error: Invalid command format. Use baix.method(args)');
+                return;
+            }
+            
+            // Extract method and arguments
+            const methodMatch = methodWithArgs.match(/(\w+)\(([^)]*)\)/);
+            
+            if (!methodMatch) {
+                addToConsole('Error: Invalid command format. Use baix.method(args)');
+                return;
+            }
+            
+            const method = methodMatch[1];
+            const argsString = methodMatch[2];
+            
+            // Parse arguments (simplified)
+            const args = argsString.split(',').map(arg => {
+                // Remove quotes and trim
+                return arg.replace(/['"]/g, '').trim();
+            }).filter(arg => arg !== '');
+            
+            // Execute the method
+            executeMethod(method, args);
+        }
+        
+        // Execute baix methods
+        function executeMethod(method, args) {
+            switch (method) {
+                case 'logon':
+                    if (args.length < 1) {
+                        addToConsole('Error: logon requires a key argument');
+                        return;
+                    }
+                    logon(args[0]);
+                    break;
+                    
+                case 'help':
+                    showHelp();
+                    break;
+                    
+                default:
+                    addToConsole(`Error: Unknown method '${method}'`);
+                    break;
+            }
+        }
+        
+        // Authentication function
+        function logon(key) {
+            // Simulate authentication - in a real system this would be a server call
+            if (key === 'secret123') {
+                isAuthenticated = true;
+                sessionKey = 'session_' + Math.random().toString(36).substr(2, 9);
+                statusDot.classList.add('connected');
+                statusText.textContent = 'Connected';
+                addToConsole('Authentication successful. Session established.');
+                addToConsole('You can now use the GUI to manage POIs.');
+                
+                // Enable GUI elements
+                addPoiBtn.disabled = false;
+                searchInput.disabled = false;
+                searchBtn.disabled = false;
+                
+                // Load sample data
+                loadSampleData();
+                updatePOIList();
+            } else {
+                addToConsole('Error: Invalid authentication key');
+            }
+        }
+        
+        // Add a new POI from form
+        function addPOIFromForm() {
+            const newPOI = {
+                id: 'poi_' + Math.random().toString(36).substr(2, 9),
+                firstName: document.getElementById('firstName').value,
+                middleName: document.getElementById('middleName').value,
+                lastName: document.getElementById('lastName').value,
+                dob: document.getElementById('dob').value,
+                address1: document.getElementById('address1').value,
+                address2: document.getElementById('address2').value,
+                city: document.getElementById('city').value,
+                state: document.getElementById('state').value,
+                zipCode: document.getElementById('zipCode').value,
+                country: document.getElementById('country').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                website: document.getElementById('website').value,
+                riskLevel: document.getElementById('riskLevel').value,
+                notes: document.getElementById('notes').value,
+                dateAdded: new Date().toLocaleDateString()
+            };
+            
+            poiData.push(newPOI);
+            addToConsole(`POI added: ${newPOI.firstName} ${newPOI.lastName} (ID: ${newPOI.id})`);
+            updatePOIList();
+            
+            // Close modal and reset form
+            addPoiModal.style.display = 'none';
+            poiForm.reset();
+        }
+        
+        // Search POIs
+        function searchPOIs() {
+            const query = searchInput.value.toLowerCase();
+            if (!query) {
+                updatePOIList();
+                return;
+            }
+            
+            const results = poiData.filter(poi => 
+                poi.firstName.toLowerCase().includes(query) ||
+                poi.lastName.toLowerCase().includes(query) ||
+                poi.email.toLowerCase().includes(query) ||
+                poi.phone.toLowerCase().includes(query) ||
+                (poi.middleName && poi.middleName.toLowerCase().includes(query)) ||
+                `${poi.firstName} ${poi.lastName}`.toLowerCase().includes(query)
+            );
+            
+            renderPOIList(results);
+            addToConsole(`Search completed: Found ${results.length} matching POIs`);
+        }
+        
+        // Update the POI list in the UI
+        function updatePOIList() {
+            renderPOIList(poiData);
+        }
+        
+        // Render POI list
+        function renderPOIList(data) {
+            if (data.length === 0) {
+                poiList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h3>No POIs Found</h3>
+                        <p>Try adjusting your search or add a new POI</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            poiList.innerHTML = '';
+            data.forEach(poi => {
+                const riskClass = `risk-${poi.riskLevel}`;
+                const riskText = poi.riskLevel.charAt(0).toUpperCase() + poi.riskLevel.slice(1);
+                
+                const card = document.createElement('div');
+                card.className = 'poi-card';
+                card.innerHTML = `
+                    <div class="poi-name">
+                        <span>${poi.firstName} ${poi.middleName ? poi.middleName + ' ' : ''}${poi.lastName}</span>
+                        <span class="risk-indicator ${riskClass}">${riskText}</span>
+                    </div>
+                    <div class="poi-details">
+                        <p><i class="fas fa-birthday-cake"></i> <span>${poi.dob}</span></p>
+                        <p><i class="fas fa-phone"></i> <span>${poi.phone}</span></p>
+                        <p><i class="fas fa-envelope"></i> <span>${poi.email}</span></p>
+                        <p><i class="fas fa-map-marker-alt"></i> <span>${poi.address1}, ${poi.city}, ${poi.state} ${poi.zipCode}, ${poi.country}</span></p>
+                        ${poi.website ? `<p><i class="fas fa-globe"></i> <span>${poi.website}</span></p>` : ''}
+                        ${poi.notes ? `<p><i class="fas fa-sticky-note"></i> <span>${poi.notes}</span></p>` : ''}
+                        <p><i class="fas fa-calendar-plus"></i> <span>Added: ${poi.dateAdded}</span></p>
+                        <p><i class="fas fa-fingerprint"></i> <span>ID: ${poi.id}</span></p>
+                    </div>
+                `;
+                poiList.appendChild(card);
+            });
+        }
+        
+        // Add sample data for demonstration
+        function loadSampleData() {
+            poiData = [
+                {
+                    id: 'poi_abc123',
+                    firstName: 'John',
+                    middleName: 'Robert',
+                    lastName: 'Doe',
+                    dob: '1985-05-15',
+                    address1: '123 Main St',
+                    address2: 'Apt 4B',
+                    city: 'New York',
+                    state: 'NY',
+                    zipCode: '10001',
+                    country: 'USA',
+                    phone: '+1 (555) 123-4567',
+                    email: 'john.doe@example.com',
+                    website: 'https://johndoe.com',
+                    riskLevel: 'high',
+                    notes: 'Suspicious financial activity. Monitor transactions.',
+                    dateAdded: '2023-10-15'
+                },
+                {
+                    id: 'poi_def456',
+                    firstName: 'Jane',
+                    middleName: '',
+                    lastName: 'Smith',
+                    dob: '1990-11-22',
+                    address1: '456 Park Ave',
+                    address2: '',
+                    city: 'London',
+                    state: '',
+                    zipCode: 'SW1A 1AA',
+                    country: 'UK',
+                    phone: '+44 20 7946 0958',
+                    email: 'jane.smith@example.com',
+                    website: '',
+                    riskLevel: 'medium',
+                    notes: 'Potential intelligence leak. Investigate contacts.',
+                    dateAdded: '2023-10-18'
+                }
+            ];
+        }
+        
+        // Add text to the console
+        function addToConsole(text) {
+            const newLine = document.createElement('div');
+            newLine.textContent = text;
+            consoleOutput.appendChild(newLine);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+        
+        // Clear the console
+        function clearConsole() {
+            consoleOutput.innerHTML = '';
+            addToConsole('Console cleared.');
+            addToConsole('B\'aix Console initialized.');
+        }
+        
+        // Show help
+        function showHelp() {
+            addToConsole('Available commands:');
+            addToConsole('- baix.logon(key) - Authenticate with the system');
+            addToConsole('- baix.help() - Show this help message');
+            addToConsole('');
+            addToConsole('After authentication, use the GUI to manage POIs.');
+        }
+        
+        // Initialize the application
+        initConsole();
+        
+        // Global object for console access
+        window.baix = {
+            logon: (key) => processCommand(`baix.logon(${key})`),
+            help: () => processCommand('baix.help()')
+        };
+        
+        // Initial help message
+        setTimeout(() => {
+            addToConsole(' ');
+            addToConsole('You can also use direct JavaScript commands in your browser console:');
+            addToConsole('Example: baix.logon("secret123")');
+        }, 2000);
+    </script>
+</body>
+</html>
